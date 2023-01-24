@@ -11,11 +11,11 @@ jobs:
     steps:
       - name: checkout repo content
         uses: actions/checkout@v2
-     - name: setup-python ${{ matrix.python }}
-      id: setup-python
-      uses: ./
-      with:
-        python-version: ${{ matrix.python }}
+      - name: setup-python ${{ matrix.python }}
+       id: setup-python
+       uses: ./
+       with:
+         python-version: ${{ matrix.python }}
           
       - name: install python packages
         run: |

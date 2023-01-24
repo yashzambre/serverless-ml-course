@@ -6,14 +6,14 @@ on:
 #    - cron: '11 11 * * *'
 
 jobs:
-  test_schedule:
-    name: Setup ${{ matrix.python }} ${{ matrix.os }} (noenv)
+  setup-versions-from-manifest:
+    name: Setup ${{ matrix.python }} ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [macos-latest, windows-latest, ubuntu-18.04, ubuntu-20.04]
-        python: ["3.7", "3.8", "3.9", "3.10"]
+        python: [3.5.4, 3.6.7, 3.7.5, 3.8.1]
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -23,26 +23,22 @@ jobs:
       uses: ./
       with:
         python-version: ${{ matrix.python }}
-        update-environment: false
 
-    - name: Python version
-      run: ${{ steps.setup-python.outputs.python-path }} --version
+    - name: Check python-path
+      run: ./__tests__/check-python-path.sh '${{ steps.setup-python.outputs.python-path }}'
+      shell: bash
+
+    - name: Validate version
+      run: |
+        $pythonVersion = (python --version)
+        if ("Python ${{ matrix.python }}" -ne "$pythonVersion"){
+          Write-Host "The current version is $pythonVersion; expected version is ${{ matrix.python }}"
+          exit 1
+        }
+        $pythonVersion
+      shell: pwsh
 
     - name: Run simple code
-      run: ${{ steps.setup-python.outputs.python-path }} -c 'import math; print(math.factorial(5))'
-    - name: install python packages
-      run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          
-    - name: install python packages
-      run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt 
-     
-          
-    - name: execute python workflows from bash script
-      env: 
-        HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
-      run: ./src/03-module/scripts/run-fraud-batch-inference.sh
+      run: python -c 'import math; print(math.factorial(5))'
+
 

@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: checkout repo content
         uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v3  
       - name: setup-python ${{ matrix.python }}
         id: setup-python
         uses: ./
